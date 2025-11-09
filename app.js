@@ -34,7 +34,7 @@ app.post('/register', async(req, res) => {
     }
 });
 
-// app.use(verifyToken);
+app.use(verifyToken);
 
 app.get('/get_policy_details', async(req, res) => {
     try {

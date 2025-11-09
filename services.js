@@ -37,11 +37,11 @@ const register = async (data) => {
             // await userFetched.decryptFields();
             return { success: false, message: 'Username already exists' };
         }
-            const users = new Users({
-                username, password, name, dob, gender, mobile
-            })
-            await users.save();
-            return { success: true, message: 'Registration successful' };
+        const users = new Users({
+            username, password, name, dob, gender, mobile
+        })
+        await users.save();
+        return { success: true, message: 'Registration successful' };
 
     } catch (error) {
         console.log('error', error)
@@ -66,6 +66,10 @@ const getPolicyDetails = async (req) => {
 
 const policyCalculation = async (data) => {
     try {
+        const validate = validateSumAssured(Number(data.modal_premium), Number(data.sum_assured), data.premium_frequency);
+        if (!validate.valid) {
+            return { success: false, message: validate.message }
+        }
         const policy_cal = await premium_calculation(data)
         return { success: true, data: policy_cal, status: 200 };
     } catch (error) {
@@ -83,6 +87,29 @@ const verifyToken = (req, res, next) => {
         next();
     });
 };
+
+function validateSumAssured(premium, sumAssured, frequency) {
+    let annualPremium;
+
+    if (frequency === 'Monthly') {
+        annualPremium = premium * 12;
+    } else if (frequency === 'Half-Yearly') {
+        annualPremium = premium * 2;
+    } else {
+        annualPremium = premium;
+    }
+
+    const minRequired = Math.min(annualPremium * 10, 5000000);
+
+    if (sumAssured < minRequired) {
+        return {
+            valid: false,
+            message: `Sum Assured must be at least ₹${minRequired.toLocaleString()} based on your premium`
+        };
+    }
+
+    return { valid: true };
+}
 
 module.exports = {
     login,
