@@ -9,10 +9,10 @@ const login = async (data) => {
         return { success: false, message: 'Username and password are required' };
     }
     const userFetched = await Users.findOne({ username });
-    if(!userFetched){
-        return { success: false, message: 'user not found', status:404 };
-    }else if (userFetched && !(await userFetched.comparePassword(password))) {
-        return { success: false, message: 'username and password do not match', status:401 };
+    if (!userFetched) {
+        return { success: false, message: 'user not found', status: 404 };
+    } else if (userFetched && !(await userFetched.comparePassword(password))) {
+        return { success: false, message: 'username and password do not match', status: 401 };
     }
     try {
         const accessToken = await new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ const login = async (data) => {
                 else resolve(token);
             });
         });
-        return { success: true, message: 'Login successful', accessToken, status:200 };
+        return { success: true, message: 'Login successful', accessToken, status: 200 };
     } catch (err) {
         return { success: false, message: 'Token generation failed' };
     }
@@ -30,17 +30,22 @@ const login = async (data) => {
 const register = async (data) => {
     try {
         // Logic for user registration
-        const { username, password } = data;
+        const { username, password, name, dob, gender, mobile } = data;
         // Register user
         const userFetched = await Users.findOne({ username });
         if (userFetched) {
             return { success: false, message: 'Username already exists' };
         }
-        const users = new Users({
-            username, password
-        })
-        users.save();
-        return { success: true, message: 'Registration successful' };
+        try {
+            const users = new Users({
+                username, password, name, dob, gender, mobile
+            })
+            users.save();
+            return { success: true, message: 'Registration successful' };
+        } catch (error) {
+            return { success: false, message: 'Registration failed' };
+        }
+
     } catch (error) {
         console.log('error', error)
         return { success: false, message: 'Registration failed' };
@@ -65,7 +70,7 @@ const getPolicyDetails = async (req) => {
 const policyCalculation = async (data) => {
     try {
         const policy_cal = await premium_calculation(data)
-        return {success:true, data: policy_cal, status:200};
+        return { success: true, data: policy_cal, status: 200 };
     } catch (error) {
         return { success: false, message: 'policy calculation failed' };
     }
