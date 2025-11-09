@@ -33,8 +33,8 @@ const register = async (data) => {
         const { username, password, name, dob, gender, mobile } = data;
         // Register user
         const userFetched = await Users.findOne({ username });
-        await userFetched.decryptFields();
         if (userFetched) {
+            // await userFetched.decryptFields();
             return { success: false, message: 'Username already exists' };
         }
             const users = new Users({
