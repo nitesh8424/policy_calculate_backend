@@ -33,18 +33,15 @@ const register = async (data) => {
         const { username, password, name, dob, gender, mobile } = data;
         // Register user
         const userFetched = await Users.findOne({ username });
+        await userFetched.decryptFields();
         if (userFetched) {
             return { success: false, message: 'Username already exists' };
         }
-        try {
             const users = new Users({
                 username, password, name, dob, gender, mobile
             })
-            users.save();
+            await users.save();
             return { success: true, message: 'Registration successful' };
-        } catch (error) {
-            return { success: false, message: 'Registration failed' };
-        }
 
     } catch (error) {
         console.log('error', error)
